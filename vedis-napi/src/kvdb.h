@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) Nicola Del Gobbo
+ * Copyright (c) 2018 Nicola Del Gobbo
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the license at http://www.apache.org/licenses/LICENSE-2.0
@@ -33,6 +33,12 @@ namespace KVDB {
             static Napi::Object Init(Napi::Env env, Napi::Object exports);
             explicit Database(const Napi::CallbackInfo& info);
             ~Database(); 
+            
+        private:  
+            std::string db_name;
+            vedis *db;
+            static Napi::FunctionReference constructor;
+
             Napi::Value GetKey(const Napi::CallbackInfo& info);
             Napi::Value GetKeyBuffer(const Napi::CallbackInfo& info);
             Napi::Value GetKeySync(const Napi::CallbackInfo& info);
@@ -40,10 +46,6 @@ namespace KVDB {
             Napi::Value PutKeyBuffer(const Napi::CallbackInfo& info);
             Napi::Value PutKeySync(const Napi::CallbackInfo& info);
             Napi::Value DbName(const Napi::CallbackInfo& info);
-        private:  
-            std::string db_name;
-            vedis *db;
-            static Napi::FunctionReference constructor;
     };
 
     static std::string root_path = "./tmp";
