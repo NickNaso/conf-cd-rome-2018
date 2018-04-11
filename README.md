@@ -14,6 +14,9 @@ and knowledge I'll show you how to build some addons from scratch and how to
 convert existing addons using the new N-API. The last part is related to future 
 developments about addons.
 
+
+## [Slides](/slides)
+
 ## Examples
 
  - [First simple example](/00-echo)
@@ -28,7 +31,6 @@ developments about addons.
 
  - [Stream and Native addon-ons](/05-addon-stream)
 
-## [Slides](/siles)
 
 ## C++ references
 
