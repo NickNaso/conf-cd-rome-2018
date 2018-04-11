@@ -37,7 +37,7 @@ class GetKeyWorker: public Napi::AsyncWorker {
       // Extract the return value of the last executed command (i.e. 'GET test') " 
       vedis_value *result;
       vedis_exec_result(db, &result);
-      //Cast the vedis object to a string 
+      // Cast the vedis object to a string 
       value = vedis_value_to_string(result, 0);
     }
 
@@ -139,10 +139,11 @@ class PutKeyBufferWorker: public Napi::AsyncWorker {
     void Execute() {
       int rc;
       //rc = vedis_exec(db, cmd.c_str(), -1);
+      // std::string s(this->buffer, this->buffer_length);
+      // std::cout << "key: " << key.c_str() << " value: " << s << std::endl;
       rc = vedis_kv_store(db, key.c_str(), -1, this->buffer, this->buffer_length);
       if(rc != VEDIS_OK) { 
         // Handle error
-        std::cout << "Error: " << rc;
       }
     }
 
@@ -158,6 +159,14 @@ class PutKeyBufferWorker: public Napi::AsyncWorker {
     int buffer_length;
 };
 
+// A very basic version of Node::ErrnoException
+Napi::Error ErrnoException(Napi::Env env, std::string message, int errorno) {
+  Napi::Error e = Napi::Error::New(env, Napi::String::New(env, message));
+  e.Set("errno", Napi::Number::New(env, errno));
+  e.Set("code", Napi::Number::New(env, errno));
+  return e;
+}
+
 namespace KVDB {
 
   Napi::Object Database::Init(Napi::Env env, Napi::Object exports) {
@@ -166,6 +175,7 @@ namespace KVDB {
       InstanceMethod("putKeySync", &Database::PutKeySync),
 
       InstanceAccessor("db_name", &Database::DbName, nullptr),
+      InstanceAccessor("root_path", &Database::RootPath, nullptr),
       
       InstanceMethod("getKey", &Database::GetKey),
       InstanceMethod("putKey", &Database::PutKey),
@@ -213,6 +223,7 @@ namespace KVDB {
     rc = vedis_exec(this->db, (cmd.str()).c_str(), -1);
     if(rc != VEDIS_OK) { 
       // Handle error
+      throw ErrnoException(info.Env(), "Error executing getKeySync", rc);
     } 
     // Extract the return value of the last executed command (i.e. 'GET test') " 
     vedis_value *result;
@@ -260,6 +271,7 @@ namespace KVDB {
     rc = vedis_exec(this->db, (cmd.str()).c_str(), -1);
     if (rc != VEDIS_OK) {
       // Hanlde  error
+      throw ErrnoException(info.Env(), "Error executing putKeySync", rc);
     }
     return info.Env().Undefined();
   }
@@ -267,30 +279,46 @@ namespace KVDB {
   Napi::Value Database::DbName(const Napi::CallbackInfo& info) {
     return Napi::String::New(info.Env(), this->db_name);
   }
+
+  Napi::Value Database::RootPath(const Napi::CallbackInfo& info) {
+    return Napi::String::New(info.Env(), this->root_path);
+  }
   
   Napi::FunctionReference Database::constructor;
 
   Database::Database(const Napi::CallbackInfo& info) : Napi::ObjectWrap<Database>(info) {
+    // Need to check the input here
     this->db_name = info[0].As<Napi::String>();
+    this->root_path = info[1].As<Napi::String>();
     std::stringstream db_path;
     db_path << root_path << "/" << db_name << db_extension;
     int rc;
     rc = vedis_open(&(this->db), (db_path.str()).c_str());
     //rc = vedis_open(&(this->db), NULL);
-    int r;
-    uv_fs_t req;
-    r = uv_fs_mkdir(NULL, &req, root_path.c_str(), 0777, NULL);
-    if (r != 0) {
-      // Handle create root folder error
-    } 
-    uv_fs_req_cleanup(&req);
+    createDbFolder(info);
     if (rc != VEDIS_OK) {
       // Hanlde the initialization error
+      throw ErrnoException(info.Env(), "Error initializing database", rc);
     }
   }
 
   Database::~Database() {
     // NOOP
+  }
+
+  void Database::createDbFolder(const Napi::CallbackInfo& info) {
+    int r;
+    uv_fs_t req;
+    r = uv_fs_stat(NULL, &req, root_path.c_str(), NULL);
+    if (r != 0) {
+      r = uv_fs_mkdir(NULL, &req, root_path.c_str(), 0777, NULL);
+      if (r != 0) {
+        uv_fs_req_cleanup(&req);
+        // Handle create root folder error
+        throw ErrnoException(info.Env(), "Error creating folder for database", r);
+      }
+    }
+    uv_fs_req_cleanup(&req);
   }
 
 }

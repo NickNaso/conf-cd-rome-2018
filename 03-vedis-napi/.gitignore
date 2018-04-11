@@ -57,11 +57,5 @@ typings/
 # dotenv environment variables file
 .env
 
-# exclude build forlder
-build
-
-# exclude VSCode meta informations
-.vscode
-
-# remove build forlder
+# remove build
 build

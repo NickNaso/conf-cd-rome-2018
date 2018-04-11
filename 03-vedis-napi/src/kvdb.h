@@ -28,16 +28,22 @@ using namespace Napi;
 
 namespace KVDB {
 
+    static std::string default_path = "./tmp";
+    static std::string db_extension = ".db";
+
     class Database : public Napi::ObjectWrap<Database> {
         public: 
             static Napi::Object Init(Napi::Env env, Napi::Object exports);
             Database(const Napi::CallbackInfo& info);
             ~Database(); 
             
-        private:  
+        private:
+            std::string root_path;  
             std::string db_name;
             vedis *db;
             static Napi::FunctionReference constructor;
+
+            void createDbFolder(const Napi::CallbackInfo& info);
 
             Napi::Value GetKey(const Napi::CallbackInfo& info);
             Napi::Value GetKeyBuffer(const Napi::CallbackInfo& info);
@@ -46,10 +52,8 @@ namespace KVDB {
             Napi::Value PutKeyBuffer(const Napi::CallbackInfo& info);
             Napi::Value PutKeySync(const Napi::CallbackInfo& info);
             Napi::Value DbName(const Napi::CallbackInfo& info);
+            Napi::Value RootPath(const Napi::CallbackInfo& info);
     };
-
-    static std::string root_path = "./tmp";
-    static std::string db_extension = ".db";
 
 }
 

@@ -18,18 +18,14 @@
 
 'use strict'
 
-const Database = require('../').Database
+const { Database } = require('bindings')('kvdb')
 
-console.log(Database)
-
-process.chdir(__dirname)
-
-const mydb = new Database('test')
+const mydb = new Database('test', './tmp')
 console.log(mydb.db_name)
 mydb.putKeySync("username", "NickNaso");
 console.log(mydb.getKeySync("username"));
 
-const mydb2 = new Database('test2');
+const mydb2 = new Database('test2', './tmp');
 console.log(mydb2.db_name)
 mydb2.putKeySync("username", "NickNaso");
 console.log(mydb2.getKeySync("username"));
