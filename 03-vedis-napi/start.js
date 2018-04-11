@@ -20,12 +20,12 @@
 
 const { Database } = require('bindings')('kvdb')
 
-const mydb = new Database('test', './tmp')
+const mydb = new Database('test', './tmp-sync')
 console.log(mydb.db_name)
 mydb.putKeySync("username", "NickNaso");
 console.log(mydb.getKeySync("username"));
 
-const mydb2 = new Database('test2', './tmp');
+const mydb2 = new Database('test2', './tmp-sync');
 console.log(mydb2.db_name)
 mydb2.putKeySync("username", "NickNaso");
 console.log(mydb2.getKeySync("username"));

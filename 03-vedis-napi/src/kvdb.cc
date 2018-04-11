@@ -80,53 +80,6 @@ void buffer_delete_callback(Env env, char* data) {
   free(data);
 }
 
-class GetKeyBufferWorker: public Napi::AsyncWorker {
-  public:
-    GetKeyBufferWorker(Napi::Function& callback, vedis *db, std::string key)
-      :Napi::AsyncWorker(callback), db(db), key(key) {}
-    ~GetKeyBufferWorker() {}
-
-    void Execute() {
-      int rc;
-      std::stringstream strlenCmd;
-      strlenCmd << "STRLEN " + key;
-      rc = vedis_exec(db, (strlenCmd.str()).c_str(), -1);
-      if(rc != VEDIS_OK) { 
-        // Handle error
-      }
-      // Extract the return value of the last executed command (i.e. 'STRLEN test') "
-      vedis_value *strlen_result;
-      vedis_exec_result(db, &strlen_result);
-      // Cast the vedis object to a string 
-      this->buffer_length = vedis_value_to_int(strlen_result); 
-
-      std::stringstream get_cmd;
-      get_cmd << "GET " + key;
-      rc = vedis_exec(db, (get_cmd.str()).c_str(), -1);
-      if(rc != VEDIS_OK) { 
-        // Handle error
-      } 
-      // Extract the return value of the last executed command (i.e. 'GET test') " 
-      vedis_value *get_result;
-      vedis_exec_result(db, &get_result);
-      // Cast the vedis object to a string 
-      this->buffer = const_cast<char *>(vedis_value_to_string(get_result, 0));
-      
-    }
-
-    void OnOK() {
-      Napi::HandleScope scope(Env()); 
-      Buffer<char> buffer = Buffer<char>::New(Env(), this->buffer, this->buffer_length, buffer_delete_callback);
-      Callback().Call({ Env().Null(), buffer});
-    }
-
-  private:
-    vedis *db; 
-    std::string key;
-    char *buffer;
-    int buffer_length;
-};
-
 class PutKeyBufferWorker: public Napi::AsyncWorker {
   public:
     PutKeyBufferWorker(Napi::Function& callback, vedis *db, std::string key, Buffer<char> buffer)
@@ -179,7 +132,6 @@ namespace KVDB {
       
       InstanceMethod("getKey", &Database::GetKey),
       InstanceMethod("putKey", &Database::PutKey),
-      InstanceMethod("getKeyBuffer", &Database::GetKeyBuffer),
       InstanceMethod("putKeyBuffer", &Database::PutKeyBuffer)
     }); 
     constructor = Napi::Persistent(tpl);
@@ -198,18 +150,6 @@ namespace KVDB {
       GetKeyWorker* work = new GetKeyWorker(callback, this->db, cmd.str());
       work->Queue();
       return info.Env().Undefined();
-  }
-
-  Napi::Value Database::GetKeyBuffer(const Napi::CallbackInfo& info) {
-    // Here we need some control
-    Napi::String tmpKey = info[0].As<Napi::String>();
-    std::string key = tmpKey.ToString();
-    std::stringstream cmd;
-    cmd << "GET " + key;
-    Napi::Function callback = info[1].As<Napi::Function>();
-    GetKeyBufferWorker* work = new GetKeyBufferWorker(callback, this->db, cmd.str());
-    work->Queue();
-    return info.Env().Undefined();
   }
 
   Napi::Value Database::GetKeySync(const Napi::CallbackInfo& info) {

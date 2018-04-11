@@ -59,3 +59,8 @@ typings/
 
 # remove build
 build
+
+# remove db test folders
+tmp-async
+tmp-sync
+tmp-buffer
