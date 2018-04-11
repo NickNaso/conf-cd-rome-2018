@@ -164,7 +164,9 @@ namespace KVDB {
     Napi::Function tpl = DefineClass(env, "Database", {
       InstanceMethod("getKeySync", &Database::GetKeySync),
       InstanceMethod("putKeySync", &Database::PutKeySync),
+
       InstanceAccessor("db_name", &Database::DbName, nullptr),
+      
       InstanceMethod("getKey", &Database::GetKey),
       InstanceMethod("putKey", &Database::PutKey),
       InstanceMethod("getKeyBuffer", &Database::GetKeyBuffer),

@@ -18,11 +18,16 @@
 
 #include<napi.h>
 
+// #include <chrono>
+// #include <thread>
+// #include <iostream>
+
 void Echo(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
     // You need to check the input data here
     Napi::Function cb = info[1].As<Napi::Function>();
     std::string in = info[0].As<Napi::String>();
+    // std::this_thread::sleep_for(std::chrono::seconds(1));
     // In case of error
     // Napi::Error::New(env, "Error ...").Value()
     cb.Call({env.Null(), Napi::String::New(env, in)});

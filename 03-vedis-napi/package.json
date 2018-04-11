@@ -1,6 +1,6 @@
 {
-  "name": "conf-ni-2017-4",
-  "description": "This is a project used as example for Node Interactive 2017",
+  "name": "vedis",
+  "description": "This is a project used as example for Codemotion 2018",
   "version": "0.0.1",
   "private": true,
   "author": "Nicola Del Gobbo <nicoladelgobbo@gmail.com>",
@@ -14,8 +14,7 @@
   ],
   "license": "Apache-2.0",
   "scripts": {
-    "test": "node node_modules/jasmine/bin/jasmine.js JASMINE_CONFIG_PATH=__test__/jasmine.json",
-    "build": "node-gyp rebuild"
+    "start": "node index.js"
   },
   "engines": {
     "node": ">= 4.0.0"
@@ -28,20 +27,9 @@
     "url": "https://github.com/NickNaso/conf-ni-2017/issues"
   },
   "main": "index.js",
-  "devDependencies": {
-    "jasmine": "^2.8.0"
-  },
   "gypfile": true,
   "dependencies": {
     "bindings": "^1.3.0",
     "node-addon-api": "^1.2.0"
-  },
-  "files": [
-    "LICENSE",
-    "README.md",
-    "CHANGELOG.md",
-    "index.js",
-    "lib/",
-    "src/"
-  ]
+  }
 }

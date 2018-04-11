@@ -31,7 +31,7 @@ namespace KVDB {
     class Database : public Napi::ObjectWrap<Database> {
         public: 
             static Napi::Object Init(Napi::Env env, Napi::Object exports);
-            explicit Database(const Napi::CallbackInfo& info);
+            Database(const Napi::CallbackInfo& info);
             ~Database(); 
             
         private:  
