@@ -30,7 +30,7 @@ Napi::Value CallEmit(const Napi::CallbackInfo& info) {
     emit.Call({Napi::String::New(env, "start")});
     // Here some long running task and return piece of data exectuing some task
     for(int i = 0; i < 3; i++) {
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
         emit.Call({Napi::String::New(env, "data"), Napi::String::New(env, "data ...")});
     }
     emit.Call({Napi::String::New(env, "end")});
