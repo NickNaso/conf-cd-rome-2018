@@ -49,7 +49,7 @@ Napi::Value NativeEmitter::CallAndEmit(const Napi::CallbackInfo& info) {
     Napi::Function emit = info.This().As<Napi::Object>().Get("emit").As<Napi::Function>();
     emit.Call(info.This(), { Napi::String::New(env, "start") });
     for(int i = 0; i < 3; i++) {
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
         emit.Call(info.This(), { Napi::String::New(env, "data"), Napi::String::New(env, "data ...") });
     }
     emit.Call(info.This(), { Napi::String::New(env, "end") });
